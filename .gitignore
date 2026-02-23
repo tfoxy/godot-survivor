@@ -4,3 +4,13 @@
 
 # VSCode specific ignores
 .vscode/
+
+# Cursor specific ignores
+.cursorrules
+
+# Exported files
+dist/
+dist-web/
+
+# HTTPS serve script self-signed cert (local only)
+.https-certs/

@@ -5,9 +5,17 @@ var _direction: Vector2
 var _speed: float
 var _active: bool = false
 
+@onready var _sprite: Sprite2D = $Sprite2D
 
-func activate(pos: Vector2, dir: Vector2, speed: float) -> void:
-	position = pos
+
+func _ready() -> void:
+	var img: Image = Image.create(4, 4, false, Image.FORMAT_RGBA8)
+	img.fill(Color.WHITE)
+	_sprite.texture = ImageTexture.create_from_image(img)
+	_sprite.scale = Vector2(4.0, 4.0)
+
+
+func activate(_pos: Vector2, dir: Vector2, speed: float) -> void:
 	_direction = dir.normalized()
 	_speed = speed
 	_active = true

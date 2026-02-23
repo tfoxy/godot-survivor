@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 class_name BulletManager
 ## Object pool for bullets. Pre-instantiates 2000 bullets; get_bullet() returns an inactive one for reuse.
 ## Use return_bullet(bullet) to recycle and emit bullet_returned.

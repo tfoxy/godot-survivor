@@ -9,6 +9,21 @@ const BulletManagerScript = preload("res://bullet_manager.gd")
 @export var bullet_count: int = 12
 @export var radius: float = 40.0
 @export var bullet_speed: float = 300.0
+@export var move_speed: float = 250.0
+
+
+func _physics_process(delta: float) -> void:
+	var move_dir: Vector2 = Vector2.ZERO
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+		move_dir.x -= 1.0
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+		move_dir.x += 1.0
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		move_dir.y -= 1.0
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		move_dir.y += 1.0
+	if move_dir != Vector2.ZERO:
+		position += move_dir.normalized() * move_speed * delta
 
 
 func _ready() -> void:
@@ -28,9 +43,13 @@ func fire_radial_pattern(bullet_count_val: int, radius_val: float) -> void:
 		var bullet: Area2D = bullet_manager.get_bullet()
 		if bullet == null:
 			continue
-		bullet.activate(spawn_pos, dir, bullet_speed)
 		bullet.global_position = spawn_pos
+		bullet.activate(spawn_pos, dir, bullet_speed)
 
 
 func _on_timer_timeout() -> void:
 	fire_radial_pattern(bullet_count, radius)
+
+
+func _draw() -> void:
+	draw_circle(Vector2.ZERO, 8.0, Color.ORANGE_RED)
