@@ -44,6 +44,26 @@ jobs:
       - name: Export Web
         run: godot --headless --export-release "Web" dist-web/index.html
 
+      - name: Cache-bust asset URLs in index.html
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          # Append ?v=<sha> to JS, WASM, and PCK references so browsers always
+          # fetch the latest files instead of serving a stale cached version.
+          sed -i \
+            -e "s|\"index\.js\"|\"index.js?v=${SHORT_SHA}\"|g" \
+            -e "s|src=\"index\.js\"|src=\"index.js?v=${SHORT_SHA}\"|g" \
+            -e "s|\"index\.wasm\"|\"index.wasm?v=${SHORT_SHA}\"|g" \
+            -e "s|\"index\.pck\"|\"index.pck?v=${SHORT_SHA}\"|g" \
+            dist-web/index.html
+
+      - name: Add no-cache headers for index.html
+        run: |
+          # GitHub Pages respects a _headers file (Netlify-style headers are NOT
+          # natively supported, but the no-store meta tag below is the reliable
+          # cross-platform fallback). We also inject a <meta> tag into index.html
+          # so the browser always revalidates it on revisit.
+          sed -i 's|<meta charset="utf-8">|<meta charset="utf-8">\n\t\t<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n\t\t<meta http-equiv="Pragma" content="no-cache">\n\t\t<meta http-equiv="Expires" content="0">|' dist-web/index.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
