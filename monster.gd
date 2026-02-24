@@ -1,4 +1,4 @@
-extends Area2D
+extends CharacterBody2D
 class_name Monster
 
 @export var speed: float = 100.0
@@ -6,15 +6,16 @@ class_name Monster
 var player: Node2D
 
 func _ready() -> void:
-	area_entered.connect(_on_area_entered)
+	$Hitbox.area_entered.connect(_on_area_entered)
 	var players = get_tree().get_nodes_in_group("player")
 	if players.size() > 0:
 		player = players[0]
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	if player != null and is_instance_valid(player):
 		var dir = global_position.direction_to(player.global_position)
-		global_position += dir * speed * delta
+		velocity = dir * speed
+		move_and_slide()
 
 func _on_area_entered(area: Area2D) -> void:
 	if area.is_in_group("bullet"):

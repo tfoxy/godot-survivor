@@ -5,8 +5,13 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_monster"]
 radius = 12.0
 
-[node name="Monster" type="Area2D"]
+[node name="Monster" type="CharacterBody2D" groups=["monster"]]
 script = ExtResource("1_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_monster")
+
+[node name="Hitbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 shape = SubResource("CircleShape2D_monster")
