@@ -11,6 +11,9 @@
 # Antigravity specific ignores
 .antigravity/
 
+# Mise
+.mise.toml
+
 # Exported files
 dist/
 game-linux-x86_64.zip
