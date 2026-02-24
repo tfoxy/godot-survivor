@@ -1,7 +1,7 @@
 extends Node2D
 ## Draws a world-space grid and background for movement reference.
 
-const Globals = preload("res://globals.gd")
+const Globals = preload("res://src/globals.gd")
 
 @export var grid_size: float = 50.0
 @export var grid_extent: float = Globals.GRID_EXTENT

@@ -1,10 +1,10 @@
 extends Node2D
 
-const Globals = preload("res://globals.gd")
+const Globals = preload("res://src/globals.gd")
 @onready var _player: Node2D = $Player
 @onready var _bullet_manager: Node2D = $BulletManager
 
-var monster_scene: PackedScene = preload("res://monster.tscn")
+var monster_scene: PackedScene = preload("res://src/monster.tscn")
 var monster_timer: Timer
 
 var current_time: float = 0.0

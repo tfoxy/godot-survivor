@@ -1,8 +1,8 @@
 extends Node2D
 ## Fires radial bullet patterns on a timer. Assign BulletManager in the inspector (e.g. sibling ../BulletManager).
 
-const Globals = preload("res://globals.gd")
-const BulletManagerScript = preload("res://bullet_manager.gd")
+const Globals = preload("res://src/globals.gd")
+const BulletManagerScript = preload("res://src/bullet_manager.gd")
 
 @export var bullet_manager_path: NodePath
 var bullet_manager: BulletManagerScript

@@ -2,7 +2,7 @@ extends Node2D
 class_name BulletManager
 
 const INITIAL_POOL_SIZE: int = 100
-const BULLET_SCENE: PackedScene = preload("res://bullet.tscn")
+const BULLET_SCENE: PackedScene = preload("res://src/bullet.tscn")
 
 signal bullet_returned(bullet: Area2D)
 
