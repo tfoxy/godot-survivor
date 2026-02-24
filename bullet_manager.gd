@@ -1,9 +1,7 @@
 extends Node2D
 class_name BulletManager
-## Object pool for bullets. Pre-instantiates 2000 bullets; get_bullet() returns an inactive one for reuse.
-## Use return_bullet(bullet) to recycle and emit bullet_returned.
 
-const POOL_SIZE: int = 2000
+const INITIAL_POOL_SIZE: int = 100
 const BULLET_SCENE: PackedScene = preload("res://bullet.tscn")
 
 signal bullet_returned(bullet: Area2D)
@@ -12,23 +10,27 @@ var _available_bullets: Array[Area2D] = []
 
 
 func _ready() -> void:
-	_fill_pool()
+	_fill_pool(INITIAL_POOL_SIZE)
 
 
-func _fill_pool() -> void:
-	_available_bullets.clear()
-	for i in POOL_SIZE:
-		var bullet: Area2D = BULLET_SCENE.instantiate() as Area2D
-		add_child(bullet)
-		bullet.manager = self
-		bullet.make_inactive()
+func _fill_pool(amount: int) -> void:
+	for i in amount:
+		var bullet: Area2D = _create_new_bullet()
 		_available_bullets.append(bullet)
 
+func _create_new_bullet() -> Area2D:
+	var bullet: Area2D = BULLET_SCENE.instantiate() as Area2D
+	add_child(bullet)
+	bullet.manager = self
+	bullet.make_inactive()
+	return bullet
 
-## Returns an inactive bullet from the pool, or null if none available.
+
+## Returns an inactive bullet from the pool, creating a new one if none available.
 func get_bullet() -> Area2D:
 	if _available_bullets.is_empty():
-		return null
+		var new_bullet: Area2D = _create_new_bullet()
+		return new_bullet
 	var bullet: Area2D = _available_bullets.pop_back()
 	return bullet
 
