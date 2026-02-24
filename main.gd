@@ -5,6 +5,7 @@ const Globals = preload("res://globals.gd")
 @onready var _bullet_manager: Node2D = $BulletManager
 
 var monster_scene: PackedScene = preload("res://monster.tscn")
+var monster_timer: Timer
 
 func _ready() -> void:
 	if _player.get("bullet_manager") != null:
@@ -13,7 +14,7 @@ func _ready() -> void:
 	var rect: Rect2 = get_viewport().get_visible_rect()
 	position = rect.get_center()
 
-	var monster_timer = Timer.new()
+	monster_timer = Timer.new()
 	monster_timer.wait_time = 2.0
 	monster_timer.autostart = true
 	monster_timer.timeout.connect(_on_monster_timer_timeout)
@@ -32,3 +33,6 @@ func _on_monster_timer_timeout() -> void:
 	var monster = monster_scene.instantiate()
 	monster.position = spawn_pos
 	add_child(monster)
+	
+	if monster_timer.wait_time > 0.1:
+		monster_timer.wait_time -= 0.1
