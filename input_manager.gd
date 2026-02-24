@@ -41,6 +41,16 @@ func _process(_delta: float) -> void:
 	if joy_axis_right.length() > 0.15:
 		dir += joy_axis_right
 
+	# --- Gamepad (D-pad) ---
+	if Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_LEFT):
+		dir.x -= 1.0
+	if Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_RIGHT):
+		dir.x += 1.0
+	if Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_UP):
+		dir.y -= 1.0
+	if Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_DOWN):
+		dir.y += 1.0
+
 	# --- Touch (Virtual Joystick) ---
 	dir += _joystick_value
 
