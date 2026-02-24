@@ -1,15 +1,22 @@
 extends Node2D
 ## Fires radial bullet patterns on a timer. Assign BulletManager in the inspector (e.g. sibling ../BulletManager).
 
+const Globals = preload("res://globals.gd")
 const BulletManagerScript = preload("res://bullet_manager.gd")
 
-@export var bullet_manager: BulletManagerScript
+@export var bullet_manager_path: NodePath
+var bullet_manager: BulletManagerScript
 @onready var timer: Timer = $Timer
 
 @export var bullet_count: int = 12
 @export var radius: float = 40.0
 @export var bullet_speed: float = 300.0
 @export var move_speed: float = 250.0
+@export var bullet_cooldown: float = 2
+@export var player_size: float = 8.0
+
+
+@export var grid_extent: float = Globals.GRID_EXTENT
 
 
 func _physics_process(delta: float) -> void:
@@ -24,10 +31,14 @@ func _physics_process(delta: float) -> void:
 		move_dir.y += 1.0
 	if move_dir != Vector2.ZERO:
 		position += move_dir.normalized() * move_speed * delta
-
+	
+	position.x = clamp(position.x, -grid_extent + player_size, grid_extent - player_size)
+	position.y = clamp(position.y, -grid_extent + player_size, grid_extent - player_size)
 
 func _ready() -> void:
-	timer.wait_time = 0.5
+	if bullet_manager_path:
+		bullet_manager = get_node(bullet_manager_path) as BulletManagerScript
+	timer.wait_time = bullet_cooldown
 	timer.timeout.connect(_on_timer_timeout)
 	timer.start()
 
@@ -52,4 +63,4 @@ func _on_timer_timeout() -> void:
 
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 8.0, Color.ORANGE_RED)
+	draw_circle(Vector2.ZERO, player_size, Color.ORANGE_RED)

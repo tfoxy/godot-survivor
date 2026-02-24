@@ -8,6 +8,9 @@
 # Cursor specific ignores
 .cursorrules
 
+# Antigravity specific ignores
+.antigravity/
+
 # Exported files
 dist/
 dist-web/
