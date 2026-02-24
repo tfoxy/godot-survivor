@@ -20,7 +20,8 @@ func _fill_pool() -> void:
 	for i in POOL_SIZE:
 		var bullet: Area2D = BULLET_SCENE.instantiate() as Area2D
 		add_child(bullet)
-		bullet.deactivate()
+		bullet.manager = self
+		bullet.make_inactive()
 		_available_bullets.append(bullet)
 
 
@@ -36,6 +37,10 @@ func get_bullet() -> Area2D:
 func return_bullet(bullet: Area2D) -> void:
 	if bullet == null:
 		return
-	bullet.deactivate()
-	_available_bullets.append(bullet)
-	bullet_returned.emit(bullet)
+	if not _available_bullets.has(bullet):
+		if bullet.has_method("make_inactive"):
+			bullet.make_inactive()
+		else:
+			bullet.deactivate()
+		_available_bullets.append(bullet)
+		bullet_returned.emit(bullet)

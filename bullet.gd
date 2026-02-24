@@ -6,7 +6,7 @@ const Globals = preload("res://globals.gd")
 var _direction: Vector2
 var _speed: float
 var _active: bool = false
-
+var manager: Node2D
 
 func activate(_pos: Vector2, dir: Vector2, speed: float) -> void:
 	_direction = dir.normalized()
@@ -14,12 +14,22 @@ func activate(_pos: Vector2, dir: Vector2, speed: float) -> void:
 	_active = true
 	visible = true
 	set_physics_process(true)
+	set_deferred("monitoring", true)
+	set_deferred("monitorable", true)
 
 
-func deactivate() -> void:
+func make_inactive() -> void:
 	_active = false
 	visible = false
 	set_physics_process(false)
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
+
+func deactivate() -> void:
+	if manager:
+		manager.return_bullet(self)
+	else:
+		make_inactive()
 
 
 func _physics_process(delta: float) -> void:

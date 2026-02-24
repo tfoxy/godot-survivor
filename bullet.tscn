@@ -1,9 +1,15 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://bullet.gd" id="1_script"]
 
-[node name="Bullet" type="Area2D"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_bullet"]
+radius = 6.0
+
+[node name="Bullet" type="Area2D" groups=["bullet"]]
 z_index = 10
 script = ExtResource("1_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bullet")
