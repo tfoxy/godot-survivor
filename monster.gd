@@ -23,6 +23,9 @@ func _on_area_entered(area: Area2D) -> void:
 			area.deactivate()
 		queue_free()
 	elif area.name == "Hitbox" and area.get_parent().is_in_group("player"):
+		var main_scene = get_tree().current_scene
+		if main_scene.has_method("game_over"):
+			main_scene.game_over()
 		get_tree().reload_current_scene()
 
 func _draw() -> void:

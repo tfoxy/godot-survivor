@@ -7,6 +7,11 @@ const Globals = preload("res://globals.gd")
 var monster_scene: PackedScene = preload("res://monster.tscn")
 var monster_timer: Timer
 
+var current_time: float = 0.0
+var time_label: Label
+var best_time_label: Label
+var ui_layer: CanvasLayer
+
 func _ready() -> void:
 	if _player.get("bullet_manager") != null:
 		_player.bullet_manager = _bullet_manager
@@ -19,6 +24,42 @@ func _ready() -> void:
 	monster_timer.autostart = true
 	monster_timer.timeout.connect(_on_monster_timer_timeout)
 	add_child(monster_timer)
+
+	ui_layer = CanvasLayer.new()
+	add_child(ui_layer)
+	
+	time_label = Label.new()
+	time_label.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	time_label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	time_label.add_theme_font_size_override("font_size", 32)
+	time_label.offset_right = -20
+	time_label.offset_top = 20
+	ui_layer.add_child(time_label)
+	
+	best_time_label = Label.new()
+	best_time_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	best_time_label.grow_horizontal = Control.GROW_DIRECTION_END
+	best_time_label.add_theme_font_size_override("font_size", 32)
+	best_time_label.offset_left = 20
+	best_time_label.offset_top = 20
+	ui_layer.add_child(best_time_label)
+	
+	_update_best_label()
+
+func _process(delta: float) -> void:
+	current_time += delta
+	var minutes = int(current_time / 60.0)
+	var seconds = int(current_time) % 60
+	time_label.text = "%02d:%02d" % [minutes, seconds]
+
+func _update_best_label() -> void:
+	var minutes = int(Globals.highest_time / 60.0)
+	var seconds = int(Globals.highest_time) % 60
+	best_time_label.text = "Best: %02d:%02d" % [minutes, seconds]
+
+func game_over() -> void:
+	if current_time > Globals.highest_time:
+		Globals.highest_time = current_time
 
 func _on_monster_timer_timeout() -> void:
 	var dist = Globals.GRID_EXTENT + 400.0
