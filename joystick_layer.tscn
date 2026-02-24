@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/virtual_joystick_plus/virtual_joystick_plus.gd" id="1_vjp"]
+
+[node name="JoystickLayer" type="CanvasLayer"]
+layer = 10
+
+[node name="VirtualJoystick" type="Control" parent="."]
+script = ExtResource("1_vjp")
+anchor_right = 1
+anchor_bottom = 1
+joystick_mode = 1
+visibility_mode = 1

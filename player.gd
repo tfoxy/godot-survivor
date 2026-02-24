@@ -20,17 +20,9 @@ var bullet_manager: BulletManagerScript
 
 
 func _physics_process(delta: float) -> void:
-	var move_dir: Vector2 = Vector2.ZERO
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		move_dir.x -= 1.0
-	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		move_dir.x += 1.0
-	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
-		move_dir.y -= 1.0
-	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
-		move_dir.y += 1.0
+	var move_dir: Vector2 = InputManager.move_dir
 	if move_dir != Vector2.ZERO:
-		position += move_dir.normalized() * move_speed * delta
+		position += move_dir * move_speed * delta
 	
 	position.x = clamp(position.x, -grid_extent + player_size, grid_extent - player_size)
 	position.y = clamp(position.y, -grid_extent + player_size, grid_extent - player_size)

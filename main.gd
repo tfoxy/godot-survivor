@@ -19,6 +19,11 @@ func _ready() -> void:
 	var rect: Rect2 = get_viewport().get_visible_rect()
 	position = rect.get_center()
 
+	# Connect virtual joystick to InputManager
+	var joystick = get_node_or_null("JoystickLayer/VirtualJoystick")
+	if joystick and joystick.has_signal("analogic_changed"):
+		joystick.analogic_changed.connect(InputManager._on_joystick_changed)
+
 	monster_timer = Timer.new()
 	monster_timer.wait_time = 2.0
 	monster_timer.autostart = true
