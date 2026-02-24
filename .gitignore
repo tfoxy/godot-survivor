@@ -13,6 +13,7 @@
 
 # Exported files
 dist/
+game-linux-x86_64.zip
 dist-web/
 
 # HTTPS serve script self-signed cert (local only)
