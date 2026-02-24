@@ -26,6 +26,7 @@ func _on_area_entered(area: Area2D) -> void:
 		var main_scene = get_tree().current_scene
 		if main_scene.has_method("game_over"):
 			main_scene.game_over()
+		InputManager.reset()
 		get_tree().reload_current_scene()
 
 func _draw() -> void:

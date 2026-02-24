@@ -59,6 +59,13 @@ func _process(_delta: float) -> void:
 	move_dir = dir.limit_length(1.0)
 
 
+## Resets all input state. Call this before reloading the scene so stale
+## touch/joystick values don't carry over into the next run.
+func reset() -> void:
+	_joystick_value = Vector2.ZERO
+	move_dir = Vector2.ZERO
+
+
 ## Connected to VirtualJoystickPlus.analogic_changed signal.
 func _on_joystick_changed(
 		value: Vector2,
