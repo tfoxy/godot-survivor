@@ -8,12 +8,12 @@ const BulletManagerScript = preload("res://bullet_manager.gd")
 var bullet_manager: BulletManagerScript
 @onready var timer: Timer = $Timer
 
+@export var player_size: float = 8
+@export var move_speed: float = 250
 @export var bullet_count: int = 12
-@export var radius: float = 40.0
-@export var bullet_speed: float = 300.0
-@export var move_speed: float = 250.0
+@export var bullet_speed: float = 300
 @export var bullet_cooldown: float = 2
-@export var player_size: float = 8.0
+@export var bullet_distance: float = player_size * 2
 
 
 @export var grid_extent: float = Globals.GRID_EXTENT
@@ -59,7 +59,7 @@ func fire_radial_pattern(bullet_count_val: int, radius_val: float) -> void:
 
 
 func _on_timer_timeout() -> void:
-	fire_radial_pattern(bullet_count, radius)
+	fire_radial_pattern(bullet_count, bullet_distance)
 
 
 func _draw() -> void:
