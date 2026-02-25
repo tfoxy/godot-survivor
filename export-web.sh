@@ -11,12 +11,23 @@ cd "$SCRIPT_DIR"
 : "${GODOT:=godot}"
 
 PRESET_NAME="Web"
-DIST_DIR="dist-web"
+EXPORT_NAME="godot-survivor"
+DIST_DIR="dist"
 OUT_HTML="index.html"
+ZIP_NAME="${EXPORT_NAME}-web.zip"
 
+rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR"
+
 
 echo "Exporting with preset \"${PRESET_NAME}\" to ${DIST_DIR}/${OUT_HTML} ..."
 "$GODOT" --headless --path . --export-release "$PRESET_NAME" "${DIST_DIR}/${OUT_HTML}"
 
+echo "Creating ${ZIP_NAME} ..."
+cd "$DIST_DIR"
+zip -r "../${ZIP_NAME}" . -x "*.zip"
+cd ..
+
 echo "Done. Open: ${DIST_DIR}/${OUT_HTML}"
+echo "Distribute: ${ZIP_NAME}"
+

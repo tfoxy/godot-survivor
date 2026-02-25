@@ -16,8 +16,7 @@
 
 # Exported files
 dist/
-game-linux-x86_64.zip
-dist-web/
+/godot-survivor-*.zip
 
 # HTTPS serve script self-signed cert (local only)
 .https-certs/

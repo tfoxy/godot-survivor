@@ -1,0 +1,51 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot & Templates
+        env:
+          GODOT_VERSION: 4.6.1
+        run: |
+          wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          unzip -q Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+          unzip -q Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+          sudo mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+          mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          godot --version
+
+      - name: Install Zip
+        run: sudo apt-get update && sudo apt-get install -y zip
+
+      - name: Export Windows
+        run: ./export-win.sh
+
+      - name: Export Linux
+        run: ./export-linux-x86_64.sh
+
+      - name: Export Web
+        run: ./export-web.sh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            game-windows.zip
+            game-linux-x86_64.zip
+            game-web.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

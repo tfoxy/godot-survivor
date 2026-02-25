@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
-# Export Godot project to Linux x86_64 and zip for distribution.
+# Export Godot project to Windows and zip for distribution.
 # Requires: Godot in PATH (or set GODOT=./path/to/Godot).
-# First time: In Godot Editor, Project → Export → Add → Linux, set export path to dist/game.x86_64.
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Override if Godot is not in PATH (e.g. GODOT=./Godot_v4.2_linux.x86_64)
+# Override if Godot is not in PATH
 : "${GODOT:=godot}"
 
-PRESET_NAME="Linux"
+PRESET_NAME="Windows"
 EXPORT_NAME="godot-survivor"
 DIST_DIR="dist"
-EXEC_NAME="${EXPORT_NAME}.x86_64"
-ZIP_NAME="${EXPORT_NAME}-linux-x86_64.zip"
+EXEC_NAME="${EXPORT_NAME}.exe"
+ZIP_NAME="${EXPORT_NAME}-windows.zip"
 
 rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR"
