@@ -15,15 +15,9 @@ run/main_scene="res://src/main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
-[physics]
+[autoload]
 
-3d/physics_engine="Jolt Physics"
-
-[rendering]
-
-rendering_device/driver.windows="d3d12"
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
+InputManager="*res://src/input_manager.gd"
 
 [editor_plugins]
 
@@ -33,6 +27,12 @@ enabled=PackedStringArray("res://addons/virtual_joystick_plus/plugin.cfg")
 
 pointing/emulate_touch_from_mouse=true
 
-[autoload]
+[physics]
 
-InputManager="*res://src/input_manager.gd"
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
