@@ -1,4 +1,4 @@
-name: Create GitHub Release
+name: Create GitHub Release (Optimized Build)
 
 on:
   push:
@@ -9,43 +9,159 @@ permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  build-templates:
+    name: Build ${{ matrix.platform }} Templates
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linuxbsd
+            output_name: linux
+            artifact_name: template-linux
+          - platform: windows
+            output_name: windows
+            artifact_name: template-windows
+          - platform: web
+            output_name: web
+            artifact_name: template-web
+
     steps:
-      - name: Checkout repository
+      - name: Checkout project
         uses: actions/checkout@v4
 
-      - name: Install Godot & Templates
+      - name: Cache Godot Source
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: godot
+          key: godot-4.6.1-stable-source
+
+      - name: Clone Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch 4.6.1-stable https://github.com/godotengine/godot.git
+
+      - name: Install Common Dependencies
+        run: sudo apt-get update && sudo apt-get install -y zip scons build-essential python3
+
+      - name: Install Platform Dependencies (Linux/Windows)
+        if: matrix.platform != 'web'
+        run: |
+          sudo apt-get install -y pkg-config libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libgl1-mesa-dev libglu1-mesa-dev libasound2-dev libpulse-dev libudev-dev libdbus-1-dev libwayland-dev
+
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            sudo apt-get install -y mingw-w64
+            sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+            sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+          fi
+
+      - name: Setup Emscripten (Web)
+        if: matrix.platform == 'web'
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: "latest"
+
+      - name: Build Template
+        run: |
+          cp custom.py godot/
+          cd godot
+          if [ "${{ matrix.platform }}" == "web" ]; then
+            scons platform=web target=template_release
+          elif [ "${{ matrix.platform }}" == "windows" ]; then
+            scons platform=windows target=template_release arch=x86_64 d3d12=no
+          else
+            scons platform=linuxbsd target=template_release
+          fi
+
+      - name: Rename and Strip Binaries
+        run: |
+          cd godot/bin
+          ls
+          if [ "${{ matrix.platform }}" == "web" ]; then
+            # SCons for web produces multiple .js files (engine, wrapped, etc.)
+            # We rename them specifically to avoid ambiguity with wildcards.
+            mv godot.web.template_release.wasm32.wasm web_nothreads_release.wasm || true
+            mv godot.web.template_release.wasm32.js web_nothreads_release.js || true
+            mv godot.web.template_release.wasm32.zip web_nothreads_release.zip || true
+            mv godot.web.template_release.wasm32.engine.js web_nothreads_release.engine.js || true
+            mv godot.web.template_release.wasm32.wrapped.js web_nothreads_release.wrapped.js || true
+            # Provide debug variants by copying release ones
+            cp web_nothreads_release.wasm web_nothreads_debug.wasm || true
+            cp web_nothreads_release.js web_nothreads_debug.js || true
+            cp web_nothreads_release.zip web_nothreads_debug.zip || true
+          elif [ "${{ matrix.platform }}" == "windows" ]; then
+
+            mv godot.windows.template_release.*.exe windows_release_x86_64.exe || mv godot.windows.template_release.x86_64.exe windows_release_x86_64.exe
+            # Provide debug variant by copying release one
+            cp windows_release_x86_64.exe windows_debug_x86_64.exe
+            strip windows_release_x86_64.exe || true
+            strip windows_debug_x86_64.exe || true
+          else
+            mv godot.linuxbsd.template_release.* linux_release.x86_64 || mv godot.linuxbsd.template_release.x86_64 linux_release.x86_64
+            # Provide debug variant by copying release one
+            cp linux_release.x86_64 linux_debug.x86_64
+            strip linux_release.x86_64 || true
+            strip linux_debug.x86_64 || true
+          fi
+
+      - name: Upload Template Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: godot/bin/${{ matrix.output_name }}_*
+
+  release:
+    name: Create Release with Optimized Binaries
+    needs: build-templates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Download Templates
+        uses: actions/download-artifact@v4
+        with:
+          path: templates
+
+      - name: Install Godot Editor (for exporting)
         env:
           GODOT_VERSION: 4.6.1
         run: |
           wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
-          wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
           unzip -q Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
-          unzip -q Godot_v${GODOT_VERSION}-stable_export_templates.tpz
           sudo mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 /usr/local/bin/godot
+
+          # Setup custom templates folder
           mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-          mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-          godot --version
+
+          # Move and rename templates to match Godot's expectations
+          cp templates/template-linux/linux_release.x86_64 ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/linux_release.x86_64
+          cp templates/template-linux/linux_debug.x86_64 ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/linux_debug.x86_64
+
+          cp templates/template-windows/windows_release_x86_64.exe ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/windows_release_x86_64.exe
+          cp templates/template-windows/windows_debug_x86_64.exe ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/windows_debug_x86_64.exe
+
+          # Web templates
+          cp templates/template-web/web_nothreads_release* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+          cp templates/template-web/web_nothreads_debug* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
 
       - name: Install Zip
         run: sudo apt-get update && sudo apt-get install -y zip
 
-      - name: Export Windows
-        run: ./export-win.sh
-
-      - name: Export Linux
-        run: ./export-linux-x86_64.sh
-
-      - name: Export Web
-        run: ./export-web.sh
+      - name: Run Exports
+        run: |
+          chmod +x export-win.sh export-linux-x86_64.sh export-web.sh
+          ./export-win.sh
+          ./export-linux-x86_64.sh
+          ./export-web.sh
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            game-windows.zip
-            game-linux-x86_64.zip
-            game-web.zip
+            godot-survivor-windows.zip
+            godot-survivor-linux-x86_64.zip
+            godot-survivor-web.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
