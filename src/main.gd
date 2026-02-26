@@ -4,8 +4,8 @@ const Globals = preload("res://src/globals.gd")
 @onready var _player: Node2D = $Player
 @onready var _bullet_manager: Node2D = $BulletManager
 
-var monster_scene: PackedScene = preload("res://src/monster.tscn")
-var monster_timer: Timer
+var fodder_dot_scene: PackedScene = preload("res://src/enemies/fodder_dot.tscn")
+var enemy_spawner: EnemySpawner
 
 var current_time: float = 0.0
 var time_label: Label
@@ -24,11 +24,9 @@ func _ready() -> void:
 	if joystick and joystick.has_signal("analogic_changed"):
 		joystick.analogic_changed.connect(InputManager._on_joystick_changed)
 
-	monster_timer = Timer.new()
-	monster_timer.wait_time = 2.0
-	monster_timer.autostart = true
-	monster_timer.timeout.connect(_on_monster_timer_timeout)
-	add_child(monster_timer)
+	enemy_spawner = EnemySpawner.new()
+	enemy_spawner.enemy_scenes = [fodder_dot_scene]
+	add_child(enemy_spawner)
 
 	ui_layer = CanvasLayer.new()
 	add_child(ui_layer)
@@ -65,20 +63,3 @@ func _update_best_label() -> void:
 func game_over() -> void:
 	if current_time > Globals.highest_time:
 		Globals.highest_time = current_time
-
-func _on_monster_timer_timeout() -> void:
-	var dist = Globals.GRID_EXTENT + 400.0
-	var side = randi() % 4
-	var offset_val = (randf() * 2.0 - 1.0) * dist
-	var spawn_pos: Vector2
-	if side == 0: spawn_pos = Vector2(-dist, offset_val)
-	elif side == 1: spawn_pos = Vector2(dist, offset_val)
-	elif side == 2: spawn_pos = Vector2(offset_val, -dist)
-	else: spawn_pos = Vector2(offset_val, dist)
-	
-	var monster = monster_scene.instantiate()
-	monster.position = spawn_pos
-	add_child(monster)
-	
-	if monster_timer.wait_time > 0.1:
-		monster_timer.wait_time -= 0.1
