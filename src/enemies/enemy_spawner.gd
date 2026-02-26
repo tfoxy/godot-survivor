@@ -19,6 +19,8 @@ var next_worm_time: float = 60.0
 var next_bouncy_time: float = 180.0
 
 var worms_per_spawn: int = 1
+var worm_scale: float = 1.0
+var dots_per_worm: float = 120.0
 var last_worm_count_increase: float = 0.0
 
 # Queue for incremental spawning to avoid frame drops
@@ -34,11 +36,13 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	total_time += delta
 	
-	# Increase number of worms every 80 seconds
+	# Increase number of worms and their size every 80 seconds
 	if total_time - last_worm_count_increase >= 80.0:
-		worms_per_spawn += 1
+		worms_per_spawn *= 2
+		worm_scale *= 1.05
+		dots_per_worm *= 1.25
 		last_worm_count_increase = total_time
-		print("Worms per spawn increased to: ", worms_per_spawn)
+		print("Worms per spawn increased to: ", worms_per_spawn, " scale to: ", worm_scale, " and dots to: ", dots_per_worm)
 	
 	# Fodder spawning logic: Stop at 30s, resume at 120s
 	if not fodder_stopped and total_time >= 30.0 and total_time < 120.0:
@@ -58,7 +62,7 @@ func _process(delta: float) -> void:
 	
 	# Bouncy spawning trigger
 	if total_time >= next_bouncy_time:
-		for i in range(2):
+		for i in range(3):
 			spawn_bouncy()
 		next_bouncy_time += 75.0
 	
@@ -73,6 +77,7 @@ func _process_spawn_queues() -> void:
 		var worm = worm_dot_scene.instantiate() as WormDot
 		var dot_index = q.total_dots - q.remaining_dots
 		worm.position = q.start_pos - q.spawn_dir * (dot_index * q.spacing)
+		worm.set_scale_factor(q.scale)
 		get_parent().add_child(worm)
 		
 		if q.last_node != null:
@@ -132,13 +137,15 @@ func queue_worm_spawn() -> void:
 	# it starts at -dist and the tail segments are at -dist - spacing.
 	# So the 'spawn_dir' for the LINE generation should be the entry direction.
 	
+	var total_dots = int(dots_per_worm)
 	worm_queues.append({
-		"remaining_dots": 120,
-		"total_dots": 120,
+		"remaining_dots": total_dots,
+		"total_dots": total_dots,
 		"last_node": null,
 		"start_pos": start_pos,
 		"spawn_dir": spawn_dir,
-		"spacing": 16.0
+		"spacing": 16.0 * worm_scale,
+		"scale": worm_scale
 	})
 
 func spawn_bouncy() -> void:

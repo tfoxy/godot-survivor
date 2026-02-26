@@ -1,8 +1,6 @@
 extends "res://src/enemies/enemy.gd"
 class_name BouncyDot
 
-const Globals = preload("res://src/globals.gd")
-
 var move_direction: Vector2 = Vector2.ZERO
 var state: String = "INITIAL" # INITIAL, BOUNCING
 
