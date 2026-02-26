@@ -51,6 +51,17 @@ func _ready() -> void:
 	count_timer.autostart = true
 	count_timer.timeout.connect(_on_count_increase)
 	add_child(count_timer)
+	
+	if has_node("Hitbox"):
+		$Hitbox.area_entered.connect(_on_hitbox_area_entered)
+
+func _on_hitbox_area_entered(area: Area2D) -> void:
+	if area.is_in_group("hostile_bullet"):
+		var main_scene = get_tree().current_scene
+		if main_scene.has_method("game_over"):
+			main_scene.game_over()
+		InputManager.reset()
+		get_tree().reload_current_scene()
 
 func _on_cooldown_reduction() -> void:
 	bullet_cooldown *= 0.9

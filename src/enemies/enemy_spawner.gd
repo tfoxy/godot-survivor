@@ -5,6 +5,7 @@ const Globals = preload("res://src/globals.gd")
 
 @export var fodder_scene: PackedScene
 @export var worm_dot_scene: PackedScene
+@export var bouncy_dot_scene: PackedScene
 
 @export var spawn_interval: float = 1.0
 @export var spawn_distance_offset: float = 800.0
@@ -15,6 +16,7 @@ var spawn_timer: Timer
 var total_time: float = 0.0
 var fodder_stopped: bool = false
 var next_worm_time: float = 60.0
+var next_bouncy_time: float = 180.0
 
 var worms_per_spawn: int = 1
 var last_worm_count_increase: float = 0.0
@@ -32,8 +34,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	total_time += delta
 	
-	# Increase number of worms every 100 seconds
-	if total_time - last_worm_count_increase >= 100.0:
+	# Increase number of worms every 80 seconds
+	if total_time - last_worm_count_increase >= 80.0:
 		worms_per_spawn += 1
 		last_worm_count_increase = total_time
 		print("Worms per spawn increased to: ", worms_per_spawn)
@@ -53,6 +55,12 @@ func _process(delta: float) -> void:
 		for i in range(worms_per_spawn):
 			queue_worm_spawn()
 		next_worm_time += 45.0
+	
+	# Bouncy spawning trigger
+	if total_time >= next_bouncy_time:
+		for i in range(2):
+			spawn_bouncy()
+		next_bouncy_time += 75.0
 	
 	# Handle incremental spawning (one dot per frame for each active queue)
 	_process_spawn_queues()
@@ -132,6 +140,14 @@ func queue_worm_spawn() -> void:
 		"spawn_dir": spawn_dir,
 		"spacing": 16.0
 	})
+
+func spawn_bouncy() -> void:
+	if bouncy_dot_scene == null:
+		return
+	var spawn_pos = _get_random_spawn_pos()
+	var enemy = bouncy_dot_scene.instantiate()
+	enemy.position = spawn_pos
+	get_parent().add_child(enemy)
 
 func _get_random_spawn_pos() -> Vector2:
 	var dist = Globals.GRID_EXTENT + spawn_distance_offset

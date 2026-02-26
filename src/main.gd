@@ -6,6 +6,7 @@ const Globals = preload("res://src/globals.gd")
 
 var fodder_dot_scene: PackedScene = preload("res://src/enemies/fodder_dot.tscn")
 var worm_dot_scene: PackedScene = preload("res://src/enemies/worm_dot.tscn")
+var bouncy_dot_scene: PackedScene = preload("res://src/enemies/bouncy_dot.tscn")
 var enemy_spawner: EnemySpawner
 
 var current_time: float = 0.0
@@ -28,6 +29,7 @@ func _ready() -> void:
 	enemy_spawner = EnemySpawner.new()
 	enemy_spawner.fodder_scene = fodder_dot_scene
 	enemy_spawner.worm_dot_scene = worm_dot_scene
+	enemy_spawner.bouncy_dot_scene = bouncy_dot_scene
 	add_child(enemy_spawner)
 
 	ui_layer = CanvasLayer.new()

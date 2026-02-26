@@ -7,16 +7,34 @@ var _direction: Vector2
 var _speed: float
 var _active: bool = false
 var manager: Node2D
+var is_hostile: bool = false
 
 func activate(_pos: Vector2, dir: Vector2, speed: float) -> void:
 	_direction = dir.normalized()
 	_speed = speed
 	_active = true
+	is_hostile = false
+	add_to_group("bullet")
+	if is_in_group("hostile_bullet"):
+		remove_from_group("hostile_bullet")
 	visible = true
 	set_physics_process(true)
 	set_deferred("monitoring", true)
 	set_deferred("monitorable", true)
+	queue_redraw()
 
+func set_hostile() -> void:
+	is_hostile = true
+	add_to_group("hostile_bullet")
+	if is_in_group("bullet"):
+		remove_from_group("bullet")
+	# Reverse direction on bounce? Or the bouncy_dot will handle it
+	# Let's just change color for now
+	queue_redraw()
+
+func flip_direction() -> void:
+	_direction = - _direction
+	queue_redraw()
 
 func make_inactive() -> void:
 	_active = false
@@ -43,4 +61,5 @@ func _physics_process(delta: float) -> void:
 		deactivate()
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, 6.0, Color.GRAY)
+	var color = Color.RED if is_hostile else Color.GRAY
+	draw_circle(Vector2.ZERO, 6.0, color)
