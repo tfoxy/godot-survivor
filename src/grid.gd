@@ -9,6 +9,9 @@ const Globals = preload("res://src/globals.gd")
 @export var background_color: Color = Color(0.18, 0.18, 0.2, 1.0)
 @export var axis_color: Color = Color(0.4, 0.4, 0.5, 0.8)
 
+func update_extent(new_extent: float) -> void:
+	grid_extent = new_extent
+	queue_redraw()
 
 func _draw() -> void:
 	var half: float = grid_extent

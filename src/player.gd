@@ -18,6 +18,12 @@ var bullet_manager: BulletManagerScript
 
 @export var grid_extent: float = Globals.GRID_EXTENT
 
+func update_grid_extent(new_extent: float) -> void:
+	grid_extent = new_extent
+	# Instantly clamp player to new bounds if they were outside (though grid is expanding, so this is just safety)
+	position.x = clamp(position.x, -grid_extent + player_size, grid_extent - player_size)
+	position.y = clamp(position.y, -grid_extent + player_size, grid_extent - player_size)
+
 
 func _physics_process(delta: float) -> void:
 	var move_dir: Vector2 = InputManager.move_dir

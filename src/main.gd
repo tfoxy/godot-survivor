@@ -51,6 +51,29 @@ func _ready() -> void:
 	
 	_update_best_label()
 
+	var grid_timer = Timer.new()
+	grid_timer.wait_time = 150.0 # 2.5 minutes
+	grid_timer.autostart = true
+	grid_timer.timeout.connect(_on_grid_expansion)
+	add_child(grid_timer)
+
+func _on_grid_expansion() -> void:
+	Globals.GRID_EXTENT *= 1.5
+	print("Grid expanded to: ", Globals.GRID_EXTENT)
+	
+	if has_node("Grid"):
+		var grid = get_node("Grid")
+		if grid.has_method("update_extent"):
+			grid.update_extent(Globals.GRID_EXTENT)
+		else:
+			grid.grid_extent = Globals.GRID_EXTENT
+			grid.queue_redraw()
+	
+	if _player.has_method("update_grid_extent"):
+		_player.update_grid_extent(Globals.GRID_EXTENT)
+	elif "grid_extent" in _player:
+		_player.grid_extent = Globals.GRID_EXTENT
+
 func _process(delta: float) -> void:
 	current_time += delta
 	var minutes = int(current_time / 60.0)
