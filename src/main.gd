@@ -5,6 +5,7 @@ const Globals = preload("res://src/globals.gd")
 @onready var _bullet_manager: Node2D = $BulletManager
 
 var fodder_dot_scene: PackedScene = preload("res://src/enemies/fodder_dot.tscn")
+var worm_dot_scene: PackedScene = preload("res://src/enemies/worm_dot.tscn")
 var enemy_spawner: EnemySpawner
 
 var current_time: float = 0.0
@@ -25,7 +26,8 @@ func _ready() -> void:
 		joystick.analogic_changed.connect(InputManager._on_joystick_changed)
 
 	enemy_spawner = EnemySpawner.new()
-	enemy_spawner.enemy_scenes = [fodder_dot_scene]
+	enemy_spawner.fodder_scene = fodder_dot_scene
+	enemy_spawner.worm_dot_scene = worm_dot_scene
 	add_child(enemy_spawner)
 
 	ui_layer = CanvasLayer.new()
