@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="Godot Survivor"
-run/main_scene="res://src/main.tscn"
+run/main_scene="res://src/level_selector.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
 InputManager="*res://src/input_manager.gd"
+Globals="*res://src/globals.gd"
 
 [editor_plugins]
 

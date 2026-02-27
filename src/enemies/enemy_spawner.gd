@@ -1,7 +1,7 @@
 extends Node2D
 class_name EnemySpawner
 
-const Globals = preload("res://src/globals.gd")
+const LevelConfigScript = preload("res://src/level_config.gd")
 
 @export var fodder_scene: PackedScene
 @export var worm_dot_scene: PackedScene
@@ -27,6 +27,19 @@ var last_worm_count_increase: float = 0.0
 var worm_queues: Array = []
 
 func _ready() -> void:
+	var config = Globals.selected_level
+	if config == null:
+		config = LevelConfigScript.new()
+		Globals.selected_level = config
+		
+	spawn_interval = config.spawn_interval
+	min_spawn_interval = config.min_spawn_interval
+	interval_reduction = config.interval_reduction
+	next_worm_time = config.worm_start_time
+	next_bouncy_time = config.bouncy_start_time
+	worms_per_spawn = config.initial_worms_per_spawn
+	dots_per_worm = config.initial_dots_per_worm
+	
 	spawn_timer = Timer.new()
 	spawn_timer.wait_time = spawn_interval
 	spawn_timer.autostart = true
@@ -35,21 +48,22 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	total_time += delta
+	var config = Globals.selected_level
 	
-	# Increase number of worms and their size every 80 seconds
-	if total_time - last_worm_count_increase >= 80.0:
-		worms_per_spawn *= 2
-		worm_scale *= 1.05
-		dots_per_worm *= 1.25
+	# Increase difficulty every scaling_interval
+	if total_time - last_worm_count_increase >= config.scaling_interval:
+		worms_per_spawn = int(worms_per_spawn * config.worm_count_multiplier)
+		worm_scale *= config.worm_scale_multiplier
+		dots_per_worm *= config.dots_per_worm_multiplier
 		last_worm_count_increase = total_time
-		print("Worms per spawn increased to: ", worms_per_spawn, " scale to: ", worm_scale, " and dots to: ", dots_per_worm)
+		print("Difficulty increased! Worms: ", worms_per_spawn, " Scale: ", worm_scale, " Dots: ", dots_per_worm)
 	
-	# Fodder spawning logic: Stop at 30s, resume at 120s
-	if not fodder_stopped and total_time >= 30.0 and total_time < 120.0:
+	# Fodder spawning logic
+	if not fodder_stopped and total_time >= config.fodder_stop_time and total_time < config.fodder_resume_time:
 		fodder_stopped = true
 		spawn_timer.stop()
 		print("Stopping fodder spawning")
-	elif fodder_stopped and total_time >= 120.0:
+	elif fodder_stopped and total_time >= config.fodder_resume_time:
 		fodder_stopped = false
 		spawn_timer.start()
 		print("Resuming fodder spawning")
@@ -58,13 +72,13 @@ func _process(delta: float) -> void:
 	if total_time >= next_worm_time:
 		for i in range(worms_per_spawn):
 			queue_worm_spawn()
-		next_worm_time += 45.0
+		next_worm_time += config.worm_interval
 	
 	# Bouncy spawning trigger
 	if total_time >= next_bouncy_time:
-		for i in range(3):
+		for i in range(config.bouncy_spawn_count):
 			spawn_bouncy()
-		next_bouncy_time += 75.0
+		next_bouncy_time += config.bouncy_interval
 	
 	# Handle incremental spawning (one dot per frame for each active queue)
 	_process_spawn_queues()

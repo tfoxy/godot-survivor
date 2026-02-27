@@ -1,8 +1,6 @@
 extends CharacterBody2D
 class_name Enemy
 
-const Globals = preload("res://src/globals.gd")
-
 @export var speed: float = 100.0
 
 var player: Node2D
@@ -47,5 +45,4 @@ func _on_player_contact() -> void:
 	if main_scene.has_method("game_over"):
 		main_scene.game_over()
 	InputManager.reset()
-	Globals.GRID_EXTENT = 800.0
 	get_tree().reload_current_scene()

@@ -1,8 +1,6 @@
 extends Area2D
 ## Bullet script for Object Pooling. Use activate() to show and run, deactivate() to hide and stop.
 
-const Globals = preload("res://src/globals.gd")
-
 var _direction: Vector2
 var _speed: float
 var _active: bool = false

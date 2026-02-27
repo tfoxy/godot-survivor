@@ -10,6 +10,13 @@ var move_dir: Vector2 = Vector2.ZERO
 var _joystick_value: Vector2 = Vector2.ZERO
 
 
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		var current_scene = get_tree().current_scene
+		if current_scene and current_scene.name != "LevelSelector":
+			reset()
+			get_tree().change_scene_to_file("res://src/level_selector.tscn")
+
 func _process(_delta: float) -> void:
 	var dir := Vector2.ZERO
 

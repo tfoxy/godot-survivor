@@ -5,9 +5,14 @@ var move_direction: Vector2 = Vector2.ZERO
 var state: String = "INITIAL" # INITIAL, BOUNCING
 
 var health: int = 100
+var max_health: int = 100
 var current_radius: float = 30.0
 
 func _setup_enemy() -> void:
+	if Globals.selected_level:
+		health = Globals.selected_level.bouncy_health
+		max_health = health
+	
 	speed = 150.0
 	state = "INITIAL"
 	# Make shapes unique so we don't resize every BouncyDot at once
@@ -55,7 +60,7 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 	if area.is_in_group("bullet"):
 		if not area.get("is_hostile"):
 			health -= 1
-			current_radius = 15.0 + (15.0 * health / 100.0)
+			current_radius = 15.0 + (15.0 * health / float(max_health))
 			
 			if has_node("CollisionShape2D"):
 				$CollisionShape2D.shape.radius = current_radius

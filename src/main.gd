@@ -1,6 +1,5 @@
 extends Node2D
-
-const Globals = preload("res://src/globals.gd")
+const LevelConfigScript = preload("res://src/level_config.gd")
 @onready var _player: Node2D = $Player
 @onready var _bullet_manager: Node2D = $BulletManager
 
@@ -15,6 +14,12 @@ var best_time_label: Label
 var ui_layer: CanvasLayer
 
 func _ready() -> void:
+	if Globals.selected_level == null:
+		Globals.selected_level = LevelConfigScript.new()
+	
+	Globals.GRID_EXTENT = Globals.selected_level.initial_grid_extent
+	sync_grid_extent()
+	
 	if _player.get("bullet_manager") != null:
 		_player.bullet_manager = _bullet_manager
 	await get_tree().process_frame
@@ -51,18 +56,29 @@ func _ready() -> void:
 	best_time_label.offset_top = 20
 	ui_layer.add_child(best_time_label)
 	
+	var level_label = Label.new()
+	level_label.text = Globals.selected_level.level_name
+	level_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	level_label.grow_horizontal = Control.GROW_DIRECTION_END
+	level_label.add_theme_font_size_override("font_size", 24)
+	level_label.offset_left = 20
+	level_label.offset_top = 60
+	ui_layer.add_child(level_label)
+	
 	_update_best_label()
 
 	var grid_timer = Timer.new()
-	grid_timer.wait_time = 150.0 # 2.5 minutes
+	grid_timer.wait_time = Globals.selected_level.grid_expansion_interval
 	grid_timer.autostart = true
 	grid_timer.timeout.connect(_on_grid_expansion)
 	add_child(grid_timer)
 
 func _on_grid_expansion() -> void:
-	Globals.GRID_EXTENT *= 1.5
+	Globals.GRID_EXTENT *= Globals.selected_level.grid_expansion_multiplier
 	print("Grid expanded to: ", Globals.GRID_EXTENT)
-	
+	sync_grid_extent()
+
+func sync_grid_extent() -> void:
 	if has_node("Grid"):
 		var grid = get_node("Grid")
 		if grid.has_method("update_extent"):
@@ -71,10 +87,11 @@ func _on_grid_expansion() -> void:
 			grid.grid_extent = Globals.GRID_EXTENT
 			grid.queue_redraw()
 	
-	if _player.has_method("update_grid_extent"):
-		_player.update_grid_extent(Globals.GRID_EXTENT)
-	elif "grid_extent" in _player:
-		_player.grid_extent = Globals.GRID_EXTENT
+	if _player != null:
+		if _player.has_method("update_grid_extent"):
+			_player.update_grid_extent(Globals.GRID_EXTENT)
+		elif "grid_extent" in _player:
+			_player.grid_extent = Globals.GRID_EXTENT
 
 func _process(delta: float) -> void:
 	current_time += delta
