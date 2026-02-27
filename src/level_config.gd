@@ -20,7 +20,7 @@ class_name LevelConfig
 @export var bouncy_start_time: float = 180.0
 @export var bouncy_interval: float = 5.0
 @export var bouncy_spawn_count: int = 3
-@export var bouncy_health: int = 100
+@export var bouncy_health: int = 25
 
 # Scaling settings
 @export var scaling_interval: float = 80.0

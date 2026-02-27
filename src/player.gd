@@ -52,7 +52,10 @@ func _ready() -> void:
 	add_child(count_timer)
 	
 	if has_node("Hitbox"):
-		$Hitbox.area_entered.connect(_on_hitbox_area_entered)
+		var hb = $Hitbox
+		hb.collision_layer = 1 << 0 # Layer 1
+		hb.collision_mask = (1 << 1) | (1 << 2) # Scan Bullets (L2) and Enemies (L3)
+		hb.area_entered.connect(_on_hitbox_area_entered)
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
 	if area.is_in_group("hostile_bullet"):

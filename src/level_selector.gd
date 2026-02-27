@@ -64,8 +64,9 @@ func _on_level_selected(level: int) -> void:
 		config.spawn_interval = 0.5
 		config.worm_start_time = 30.0
 		config.bouncy_start_time = 60.0
+		config.fodder_resume_time = 95.0
 		config.initial_grid_extent = 1200.0
-		config.bouncy_health = 10
+		config.bouncy_health = 8
 	
 	Globals.selected_level = config
 	get_tree().change_scene_to_file("res://src/main.tscn")

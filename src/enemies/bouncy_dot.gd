@@ -18,8 +18,6 @@ func _setup_enemy() -> void:
 	# Make shapes unique so we don't resize every BouncyDot at once
 	if has_node("CollisionShape2D"):
 		$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate()
-	if has_node("Hitbox/CollisionShape2D"):
-		$Hitbox/CollisionShape2D.shape = $Hitbox/CollisionShape2D.shape.duplicate()
 
 func _physics_process(_delta: float) -> void:
 	if state == "INITIAL":
@@ -28,8 +26,8 @@ func _physics_process(_delta: float) -> void:
 			move_direction = position.direction_to(player.position)
 			state = "BOUNCING"
 	
-	velocity = move_direction * speed
-	move_and_slide()
+	velocity = (move_direction * speed) + get_separation_vector(_delta)
+	position += velocity * _delta
 	
 	# Check for grid bounds to bounce (using position relative to Main)
 	var limit = Globals.GRID_EXTENT
@@ -64,8 +62,6 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 			
 			if has_node("CollisionShape2D"):
 				$CollisionShape2D.shape.radius = current_radius
-			if has_node("Hitbox/CollisionShape2D"):
-				$Hitbox/CollisionShape2D.shape.radius = current_radius
 			
 			queue_redraw()
 			

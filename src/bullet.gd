@@ -15,9 +15,12 @@ func activate(_pos: Vector2, dir: Vector2, speed: float) -> void:
 	add_to_group("bullet")
 	if is_in_group("hostile_bullet"):
 		remove_from_group("hostile_bullet")
+	collision_layer = 1 << 1 # Layer 2
+	collision_mask = 0 # Bullet doesn't scan anything
+	
 	visible = true
 	set_physics_process(true)
-	set_deferred("monitoring", true)
+	set_deferred("monitoring", false)
 	set_deferred("monitorable", true)
 	queue_redraw()
 

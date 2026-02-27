@@ -13,9 +13,6 @@ func set_scale_factor(new_scale: float) -> void:
 	if has_node("CollisionShape2D"):
 		$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate()
 		$CollisionShape2D.shape.radius = base_radius * scale_factor
-	if has_node("Hitbox/CollisionShape2D"):
-		$Hitbox/CollisionShape2D.shape = $Hitbox/CollisionShape2D.shape.duplicate()
-		$Hitbox/CollisionShape2D.shape.radius = base_radius * scale_factor
 	queue_redraw()
 
 func set_follow_target(node: Node2D) -> void:
