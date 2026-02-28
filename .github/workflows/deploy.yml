@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   export-and-deploy:
@@ -38,31 +38,17 @@ jobs:
           mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
           godot --version
 
-      - name: Create export directory
-        run: mkdir -p dist
-
       - name: Export Web
-        run: godot --headless --export-release "Web" dist/index.html
-
-      - name: Cache-bust asset URLs in index.html
         run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          # Append ?v=<sha> to JS, WASM, and PCK references so browsers always
-          # fetch the latest files instead of serving a stale cached version.
-          sed -i \
-            -e "s|\"index\.js\"|\"index.js?v=${SHORT_SHA}\"|g" \
-            -e "s|src=\"index\.js\"|src=\"index.js?v=${SHORT_SHA}\"|g" \
-            -e "s|\"index\.wasm\"|\"index.wasm?v=${SHORT_SHA}\"|g" \
-            -e "s|\"index\.pck\"|\"index.pck?v=${SHORT_SHA}\"|g" \
-            dist/index.html
+          mkdir dist
+          godot --headless --export-release "Web" dist/index.html
 
-      - name: Add no-cache headers for index.html
+      - name: Patch Service Worker Registration Logic
         run: |
-          # GitHub Pages respects a _headers file (Netlify-style headers are NOT
-          # natively supported, but the no-store meta tag below is the reliable
-          # cross-platform fallback). We also inject a <meta> tag into index.html
-          # so the browser always revalidates it on revisit.
-          sed -i 's|<meta charset="utf-8">|<meta charset="utf-8">\n\t\t<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">\n\t\t<meta http-equiv="Pragma" content="no-cache">\n\t\t<meta http-equiv="Expires" content="0">|' dist/index.html
+          cd dist
+          # Replaces the default registration logic with a 'safe' check
+          # This prevents "Service worker already exists" by checking if one is registered first.
+          sed -i "s/return Promise.reject(new Error('Service worker already exists.'));/return Promise.resolve();/g" index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
