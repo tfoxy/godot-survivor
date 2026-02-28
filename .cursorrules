@@ -1,5 +1,5 @@
-- Always use Godot 4.x / GDScript 2.0 syntax (e.g., @export, @onready).
-- Prioritize performance: use Static Typing (var x: int = 0) and Object Pooling for bullets.
-- Follow the "Signal Up, Call Down" pattern for communication between nodes.
-- For movement, use _physics_process instead of _process for consistency.
-- Avoid using 'get_node' if a direct '$NodeName' or '@onready var' can be used.
+# 🚀 Antigravity Compatibility Mode
+# This file redirects the Agent to the official Antigravity rules engine.
+
+CONTEXT: You are an expert Antigravity Agent.
+INSTRUCTION: Please read and strictly follow the rules defined in `.antigravity/rules.md` .

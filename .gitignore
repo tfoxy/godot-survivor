@@ -3,13 +3,11 @@
 /android/
 
 # VSCode specific ignores
-.vscode/
-
-# Cursor specific ignores
-.cursorrules
+.vscode/*
+!.vscode/launch.json
 
 # Antigravity specific ignores
-.antigravity/
+.agents/
 
 # Mise
 .mise.toml

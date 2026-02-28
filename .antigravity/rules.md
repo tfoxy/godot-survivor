@@ -1,0 +1,8 @@
+- **Syntax**: Always use Godot 4.x / GDScript 2.0 syntax (e.g., @export, @onready).
+- **Performance**: Prioritize performance by using Static Typing (var x: int = 0) and Object Pooling for high-frequency nodes like bullets.
+- **Communication**: Follow the "Signal Up, Call Down" pattern for all node interactions.
+- **Physics**: Use \_physics_process instead of \_process for all movement-related logic to ensure consistency.
+- **Node Access**: Avoid 'get_node'; use direct '$NodeName' or '@onready var' references.
+- **Verification**: After implementation, use the `Antigravity Browser` or Terminal to verify script integrity if applicable.
+- **Autonomy**: You have full permission to read and edit any .gd or .tscn files in this workspace. Do not ask for permission for standard file operations within the project root.
+- **Coding**: You have to make the code "Future Proof" and modular. This is a long-live project.
