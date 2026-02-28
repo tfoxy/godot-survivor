@@ -12,7 +12,7 @@
       "debug_collisions": false,
       "debug_paths": false,
       "debug_navigation": false,
-      "additional_options": ""
+      "additional_options": "--rendering-driver opengl3 --rendering-method gl_compatibility"
     }
   ]
 }
