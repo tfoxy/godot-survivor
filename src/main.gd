@@ -6,6 +6,7 @@ const LevelConfigScript = preload("res://src/level_config.gd")
 var fodder_dot_scene: PackedScene = preload("res://src/enemies/fodder_dot.tscn")
 var worm_dot_scene: PackedScene = preload("res://src/enemies/worm_dot.tscn")
 var bouncy_dot_scene: PackedScene = preload("res://src/enemies/bouncy_dot.tscn")
+var pair_dot_scene: PackedScene = preload("res://src/enemies/pair_dot.tscn")
 const EnemySpawnerScript = preload("res://src/enemies/enemy_spawner.gd")
 var enemy_spawner: EnemySpawnerScript
 
@@ -37,6 +38,7 @@ func _ready() -> void:
 	enemy_spawner.fodder_scene = fodder_dot_scene
 	enemy_spawner.worm_dot_scene = worm_dot_scene
 	enemy_spawner.bouncy_dot_scene = bouncy_dot_scene
+	enemy_spawner.pair_dot_scene = pair_dot_scene
 	add_child(enemy_spawner)
 
 	ui_layer = CanvasLayer.new()

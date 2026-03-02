@@ -5,7 +5,17 @@ const LevelConfigScript = preload("res://src/level_config.gd")
 
 @export var fodder_scene: PackedScene
 @export var worm_dot_scene: PackedScene
-@export var bouncy_dot_scene: PackedScene
+@export var bouncy_dot_scene: PackedScene # Bouncy settings
+@export var bouncy_start_time: float = 180.0
+@export var bouncy_interval: float = 5.0
+@export var bouncy_spawn_count: int = 3
+@export var bouncy_health: int = 25
+
+# Pair settings
+@export var pair_dot_scene: PackedScene
+@export var pair_start_time: float = 0.0
+@export var pair_interval: float = 10.0
+@export var pair_spawn_count: int = 1
 
 @export var spawn_interval: float = 1.0
 @export var spawn_distance_offset: float = 800.0
@@ -17,6 +27,7 @@ var total_time: float = 0.0
 var fodder_stopped: bool = false
 var next_worm_time: float = 60.0
 var next_bouncy_time: float = 180.0
+var next_pair_time: float = 0.0
 
 var worms_per_spawn: int = 1
 var worm_scale: float = 1.0
@@ -37,6 +48,7 @@ func _ready() -> void:
 	interval_reduction = config.interval_reduction
 	next_worm_time = config.worm_start_time
 	next_bouncy_time = config.bouncy_start_time
+	next_pair_time = config.pair_start_time
 	worms_per_spawn = config.initial_worms_per_spawn
 	dots_per_worm = config.initial_dots_per_worm
 	
@@ -80,6 +92,12 @@ func _process(delta: float) -> void:
 		for i in range(config.bouncy_spawn_count):
 			spawn_bouncy()
 		next_bouncy_time += config.bouncy_interval
+	
+	# Pair spawning trigger
+	if total_time >= next_pair_time and config.pair_start_time >= 0:
+		for i in range(config.pair_spawn_count):
+			spawn_pair()
+		next_pair_time += config.pair_interval
 	
 	# Handle incremental spawning (one dot per frame for each active queue)
 	_process_spawn_queues()
@@ -175,6 +193,14 @@ func spawn_bouncy() -> void:
 		return
 	var spawn_pos = _get_random_spawn_pos()
 	var enemy = bouncy_dot_scene.instantiate()
+	enemy.position = spawn_pos
+	get_parent().add_child(enemy)
+
+func spawn_pair() -> void:
+	if pair_dot_scene == null:
+		return
+	var spawn_pos = _get_random_spawn_pos()
+	var enemy = pair_dot_scene.instantiate()
 	enemy.position = spawn_pos
 	get_parent().add_child(enemy)
 

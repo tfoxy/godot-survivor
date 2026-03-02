@@ -39,7 +39,8 @@ func _ready() -> void:
 	var btns = [
 		{"name": "LEVEL 1", "level": 1, "color": Color.MEDIUM_SEA_GREEN},
 		{"name": "LEVEL 2", "level": 2, "color": Color.INDIAN_RED},
-		{"name": "LEVEL 3", "level": 3, "color": Color.MEDIUM_PURPLE}
+		{"name": "LEVEL 3", "level": 3, "color": Color.MEDIUM_PURPLE},
+		{"name": "LEVEL 4", "level": 4, "color": Color.CORNFLOWER_BLUE}
 	]
 	
 	for b_info in btns:
@@ -79,6 +80,13 @@ func _on_level_selected(level: int) -> void:
 		config.initial_grid_extent = 300.0
 		config.grid_expansion_interval = 10.0
 		config.grid_expansion_multiplier = 1.05
+	elif level == 4:
+		config.level_name = "Level 4"
+		config.pair_start_time = 2.0
+		config.pair_interval = 5.0
+		config.spawn_fodder = false
+		config.spawn_bouncy = false
+		config.initial_grid_extent = 800.0
 	
 	Globals.selected_level = config
 	get_tree().change_scene_to_file("res://src/main.tscn")

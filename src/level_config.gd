@@ -26,6 +26,11 @@ class_name LevelConfig
 @export var bouncy_spawn_count: int = 3
 @export var bouncy_health: int = 25
 
+# Pair settings
+@export var pair_start_time: float = -1.0 # -1 means disabled by default
+@export var pair_interval: float = 12.0
+@export var pair_spawn_count: int = 1
+
 # Scaling settings
 @export var scaling_interval: float = 80.0
 @export var worm_count_multiplier: float = 2.0
