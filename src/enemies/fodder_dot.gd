@@ -1,4 +1,4 @@
-extends "res://src/enemies/enemy.gd"
+extends Enemy
 class_name FodderDot
 
 func _setup_enemy() -> void:

@@ -1,4 +1,4 @@
-extends "res://src/enemies/enemy.gd"
+extends Enemy
 class_name BouncyDot
 
 var move_direction: Vector2 = Vector2.ZERO

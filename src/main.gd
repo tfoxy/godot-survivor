@@ -6,7 +6,9 @@ const LevelConfigScript = preload("res://src/level_config.gd")
 var fodder_dot_scene: PackedScene = preload("res://src/enemies/fodder_dot.tscn")
 var worm_dot_scene: PackedScene = preload("res://src/enemies/worm_dot.tscn")
 var bouncy_dot_scene: PackedScene = preload("res://src/enemies/bouncy_dot.tscn")
-var enemy_spawner: EnemySpawner
+const EnemySpawnerScript = preload("res://src/enemies/enemy_spawner.gd")
+var enemy_spawner: EnemySpawnerScript
+
 
 var current_time: float = 0.0
 var time_label: Label
@@ -31,7 +33,7 @@ func _ready() -> void:
 	if joystick and joystick.has_signal("analogic_changed"):
 		joystick.analogic_changed.connect(InputManager._on_joystick_changed)
 
-	enemy_spawner = EnemySpawner.new()
+	enemy_spawner = EnemySpawnerScript.new()
 	enemy_spawner.fodder_scene = fodder_dot_scene
 	enemy_spawner.worm_dot_scene = worm_dot_scene
 	enemy_spawner.bouncy_dot_scene = bouncy_dot_scene

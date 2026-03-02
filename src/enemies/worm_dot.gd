@@ -1,4 +1,4 @@
-extends "res://src/enemies/enemy.gd"
+extends Enemy
 class_name WormDot
 
 var scale_factor: float = 1.0
