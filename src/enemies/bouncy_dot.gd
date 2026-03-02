@@ -21,10 +21,10 @@ func _setup_enemy() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if state == "INITIAL":
-		# Move towards the player initially until first bounce
 		if player != null and is_instance_valid(player):
+			# Set direction towards player once and wait until we enter grid
 			move_direction = position.direction_to(player.position)
-			state = "BOUNCING"
+			state = "ENTERING"
 	
 	velocity = (move_direction * speed) + get_separation_vector(_delta)
 	position += velocity * _delta
@@ -33,19 +33,28 @@ func _physics_process(_delta: float) -> void:
 	var limit = Globals.GRID_EXTENT
 	var bounced = false
 	
-	if position.x <= -limit:
-		position.x = - limit + 2
-		bounced = true
-	elif position.x >= limit:
-		position.x = limit - 2
-		bounced = true
-		
-	if position.y <= -limit:
-		position.y = - limit + 2
-		bounced = true
-	elif position.y >= limit:
-		position.y = limit - 2
-		bounced = true
+	# Only start bouncing logic AFTER we are inside the grid
+	var is_outside_x = position.x <= -limit or position.x >= limit
+	var is_outside_y = position.y <= -limit or position.y >= limit
+	
+	if state == "BOUNCING":
+		if position.x <= -limit:
+			position.x = - limit + 2
+			bounced = true
+		elif position.x >= limit:
+			position.x = limit - 2
+			bounced = true
+			
+		if position.y <= -limit:
+			position.y = - limit + 2
+			bounced = true
+		elif position.y >= limit:
+			position.y = limit - 2
+			bounced = true
+	else:
+		# If we were spawned outside, wait until we enter the grid to start bouncing
+		if not is_outside_x and not is_outside_y:
+			state = "BOUNCING"
 		
 	if bounced:
 		_recalculate_direction()
@@ -80,6 +89,9 @@ func _on_hitbox_area_entered(area: Area2D) -> void:
 		_on_player_contact()
 
 func _draw() -> void:
-	# Bouncy dot is a pulsing purple circle?
-	draw_circle(Vector2.ZERO, current_radius, Color.PURPLE)
+	# Only draw the larger outer circle if we have more than 1 health
+	if health > 1:
+		draw_circle(Vector2.ZERO, current_radius, Color.PURPLE)
+	
+	# Always draw the core inner circle
 	draw_circle(Vector2.ZERO, 15.0, Color.MAGENTA)

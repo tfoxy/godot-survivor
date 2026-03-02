@@ -21,10 +21,10 @@ class_name LevelConfig
 @export var initial_dots_per_worm: int = 120
 
 # Bouncy settings
-@export var bouncy_start_time: float = 180.0
+@export var bouncy_start_time: float = 0.0
 @export var bouncy_interval: float = 5.0
 @export var bouncy_spawn_count: int = 3
-@export var bouncy_health: int = 25
+@export var bouncy_health: int = 2
 
 # Pair settings
 @export var pair_start_time: float = -1.0 # -1 means disabled by default
