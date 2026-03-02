@@ -111,5 +111,31 @@ func _update_best_label() -> void:
 	best_time_label.text = "Best: %02d:%02d" % [minutes, seconds]
 
 func game_over() -> void:
+	if get_tree().paused: return
+	
 	if current_time > Globals.highest_time:
 		Globals.highest_time = current_time
+	
+	# Freeze the game
+	get_tree().paused = true
+	
+	# Create a tween that works even while the tree is paused
+	# This will shrink the player even though the game is frozen
+	var tween = create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.tween_property(_player, "scale", Vector2.ZERO, 1.0).set_delay(2.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	
+	# Zoom in on the player
+	var camera = get_viewport().get_camera_2d()
+	if camera:
+		# Triple the current zoom over 2.5 seconds
+		var target_zoom = camera.zoom * 2.5
+		tween.parallel().tween_property(camera, "zoom", target_zoom, 2.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	
+	# Wait for 3 seconds. The second argument 'true' ensures the timer runs while paused.
+	await get_tree().create_timer(3.5, true).timeout
+
+	# Unpause and restart
+	get_tree().paused = false
+	InputManager.reset()
+	get_tree().reload_current_scene()

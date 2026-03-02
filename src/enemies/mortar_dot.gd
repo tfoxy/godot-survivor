@@ -82,10 +82,11 @@ class MortarIndicator extends Node2D:
 		queue_redraw()
 		
 		if elapsed >= duration:
-			_explode()
-			queue_free()
+			var hit = _explode()
+			if not hit:
+				queue_free()
 			
-	func _explode() -> void:
+	func _explode() -> bool:
 		if is_instance_valid(player):
 			var dist = global_position.distance_to(player.global_position)
 			if dist < radius:
@@ -93,13 +94,14 @@ class MortarIndicator extends Node2D:
 				var main_scene = get_tree().current_scene
 				if main_scene.has_method("game_over"):
 					main_scene.game_over()
-				InputManager.reset()
-				get_tree().reload_current_scene()
+				return true
+		return false
 				
 	func _draw() -> void:
-		# Draw outer border - made thicker for visibility at high zoom
+		# Draw outer border
 		draw_arc(Vector2.ZERO, radius, 0, TAU, 32, Color.GOLD, 12.0)
 		
 		# Draw filling circle
-		var fill_percent = elapsed / duration
+		var fill_percent = min(1.0, elapsed / duration)
+
 		draw_circle(Vector2.ZERO, radius * fill_percent, Color(1, 0.84, 0, 0.4))

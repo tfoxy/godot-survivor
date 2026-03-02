@@ -93,5 +93,3 @@ func _on_player_contact() -> void:
 	var main_scene = get_tree().current_scene
 	if main_scene.has_method("game_over"):
 		main_scene.game_over()
-	InputManager.reset()
-	get_tree().reload_current_scene()
