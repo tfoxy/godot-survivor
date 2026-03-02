@@ -3,8 +3,8 @@ class_name LevelConfig
 
 @export var level_name: String = "Level"
 
-@export var spawn_fodder: bool = true
-@export var spawn_bouncy: bool = true
+@export var spawn_fodder: bool = false
+@export var spawn_bouncy: bool = false
 @export var infinite_worm: bool = false
 
 # Fodder settings
@@ -30,6 +30,11 @@ class_name LevelConfig
 @export var pair_start_time: float = -1.0 # -1 means disabled by default
 @export var pair_interval: float = 12.0
 @export var pair_spawn_count: int = 1
+
+# Mortar settings
+@export var mortar_start_time: float = -1.0
+@export var mortar_interval: float = 20.0
+@export var mortar_spawn_count: int = 1
 
 # Scaling settings
 @export var scaling_interval: float = 80.0

@@ -60,9 +60,13 @@ func _on_level_selected(level: int) -> void:
 	var config = LevelConfigScript.new()
 	if level == 1:
 		config.level_name = "Level 1"
+		config.spawn_fodder = true
+		config.spawn_bouncy = true
 		# Default values are already Level 1
 	elif level == 2:
 		config.level_name = "Level 2"
+		config.spawn_fodder = true
+		config.spawn_bouncy = true
 		config.spawn_interval = 0.5
 		config.worm_start_time = 30.0
 		config.bouncy_start_time = 60.0
@@ -71,8 +75,6 @@ func _on_level_selected(level: int) -> void:
 		config.bouncy_health = 8
 	elif level == 3:
 		config.level_name = "Level 3"
-		config.spawn_fodder = false
-		config.spawn_bouncy = false
 		config.infinite_worm = true
 		config.worm_start_time = 2.0
 		config.worm_interval = 40.0
@@ -82,10 +84,11 @@ func _on_level_selected(level: int) -> void:
 		config.grid_expansion_multiplier = 1.05
 	elif level == 4:
 		config.level_name = "Level 4"
+		config.spawn_fodder = true
 		config.pair_start_time = 2.0
 		config.pair_interval = 5.0
-		config.spawn_fodder = false
-		config.spawn_bouncy = false
+		config.mortar_start_time = 5.0
+		config.mortar_interval = 25.0
 		config.initial_grid_extent = 800.0
 	
 	Globals.selected_level = config

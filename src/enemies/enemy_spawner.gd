@@ -13,6 +13,7 @@ const LevelConfigScript = preload("res://src/level_config.gd")
 
 # Pair settings
 @export var pair_dot_scene: PackedScene
+@export var mortar_dot_scene: PackedScene
 @export var pair_start_time: float = 0.0
 @export var pair_interval: float = 10.0
 @export var pair_spawn_count: int = 1
@@ -28,6 +29,8 @@ var fodder_stopped: bool = false
 var next_worm_time: float = 60.0
 var next_bouncy_time: float = 180.0
 var next_pair_time: float = 0.0
+var next_mortar_time: float = 0.0
+var mortar_current_interval: float = 20.0
 
 var worms_per_spawn: int = 1
 var worm_scale: float = 1.0
@@ -49,6 +52,8 @@ func _ready() -> void:
 	next_worm_time = config.worm_start_time
 	next_bouncy_time = config.bouncy_start_time
 	next_pair_time = config.pair_start_time
+	next_mortar_time = config.mortar_start_time
+	mortar_current_interval = config.mortar_interval
 	worms_per_spawn = config.initial_worms_per_spawn
 	dots_per_worm = config.initial_dots_per_worm
 	
@@ -98,6 +103,13 @@ func _process(delta: float) -> void:
 		for i in range(config.pair_spawn_count):
 			spawn_pair()
 		next_pair_time += config.pair_interval
+	
+	# Mortar spawning trigger
+	if total_time >= next_mortar_time and config.mortar_start_time >= 0:
+		for i in range(config.mortar_spawn_count):
+			spawn_mortar()
+		next_mortar_time += mortar_current_interval
+		mortar_current_interval = max(5.0, mortar_current_interval * 0.9)
 	
 	# Handle incremental spawning (one dot per frame for each active queue)
 	_process_spawn_queues()
@@ -201,6 +213,37 @@ func spawn_pair() -> void:
 		return
 	var spawn_pos = _get_random_spawn_pos()
 	var enemy = pair_dot_scene.instantiate()
+	enemy.position = spawn_pos
+	get_parent().add_child(enemy)
+
+func spawn_mortar() -> void:
+	if mortar_dot_scene == null:
+		return
+	
+	# "Spawns at the opposite point in the grid from the player"
+	# Calculate opposite point: direction from player to center, project to border
+	var players = get_tree().get_nodes_in_group("player")
+	if players.size() == 0: return
+	
+	# Use LOCAL position relative to grid center (Main node origin)
+	var player_pos = players[0].position
+	if player_pos.length_squared() < 100.0:
+		# Random direction if player is too close to center
+		player_pos = Vector2(randf() - 0.5, randf() - 0.5).normalized()
+		
+	var dir_to_center = - player_pos.normalized()
+	
+	# Project to grid border
+	# Use exact GRID_EXTENT for border (minus a small margin to ensure it's inside)
+	var dist = Globals.GRID_EXTENT - 20.0
+	
+	# Intersection with axis-aligned box
+	var t_x = abs(dist / dir_to_center.x) if dir_to_center.x != 0 else INF
+	var t_y = abs(dist / dir_to_center.y) if dir_to_center.y != 0 else INF
+	var t = min(t_x, t_y)
+	var spawn_pos = dir_to_center * t
+	
+	var enemy = mortar_dot_scene.instantiate()
 	enemy.position = spawn_pos
 	get_parent().add_child(enemy)
 
