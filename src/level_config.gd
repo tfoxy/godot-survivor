@@ -3,6 +3,10 @@ class_name LevelConfig
 
 @export var level_name: String = "Level"
 
+@export var spawn_fodder: bool = true
+@export var spawn_bouncy: bool = true
+@export var infinite_worm: bool = false
+
 # Fodder settings
 @export var spawn_interval: float = 1.0
 @export var min_spawn_interval: float = 0.2

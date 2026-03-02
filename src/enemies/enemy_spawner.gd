@@ -59,14 +59,15 @@ func _process(delta: float) -> void:
 		print("Difficulty increased! Worms: ", worms_per_spawn, " Scale: ", worm_scale, " Dots: ", dots_per_worm)
 	
 	# Fodder spawning logic
-	if not fodder_stopped and total_time >= config.fodder_stop_time and total_time < config.fodder_resume_time:
-		fodder_stopped = true
-		spawn_timer.stop()
-		print("Stopping fodder spawning")
-	elif fodder_stopped and total_time >= config.fodder_resume_time:
-		fodder_stopped = false
-		spawn_timer.start()
-		print("Resuming fodder spawning")
+	if config.spawn_fodder:
+		if not fodder_stopped and total_time >= config.fodder_stop_time and total_time < config.fodder_resume_time:
+			fodder_stopped = true
+			spawn_timer.stop()
+			print("Stopping fodder spawning")
+		elif fodder_stopped and total_time >= config.fodder_resume_time:
+			fodder_stopped = false
+			spawn_timer.start()
+			print("Resuming fodder spawning")
 		
 	# Worm spawning trigger
 	if total_time >= next_worm_time:
@@ -75,7 +76,7 @@ func _process(delta: float) -> void:
 		next_worm_time += config.worm_interval
 	
 	# Bouncy spawning trigger
-	if total_time >= next_bouncy_time:
+	if config.spawn_bouncy and total_time >= next_bouncy_time:
 		for i in range(config.bouncy_spawn_count):
 			spawn_bouncy()
 		next_bouncy_time += config.bouncy_interval
@@ -88,20 +89,23 @@ func _process_spawn_queues() -> void:
 	for i in range(worm_queues.size()):
 		var q = worm_queues[i]
 		
-		var worm = worm_dot_scene.instantiate() as WormDot
-		var dot_index = q.total_dots - q.remaining_dots
+		var worm = worm_dot_scene.instantiate()
+		var dot_index = q.spawned_count
 		worm.position = q.start_pos - q.spawn_dir * (dot_index * q.spacing)
-		worm.set_scale_factor(q.scale)
+		if worm.has_method("set_scale_factor"):
+			worm.set_scale_factor(q.scale)
 		get_parent().add_child(worm)
 		
-		if q.last_node != null:
+		if q.last_node != null and worm.has_method("set_follow_target"):
 			worm.set_follow_target(q.last_node)
 		
 		q.last_node = worm
-		q.remaining_dots -= 1
+		q.spawned_count += 1
 		
-		if q.remaining_dots <= 0:
-			finished_indices.append(i)
+		if not q.infinite:
+			q.remaining_dots -= 1
+			if q.remaining_dots <= 0:
+				finished_indices.append(i)
 	
 	# Remove finished queues in reverse to maintain indices
 	finished_indices.reverse()
@@ -109,6 +113,8 @@ func _process_spawn_queues() -> void:
 		worm_queues.remove_at(idx)
 
 func _on_spawn_timer_timeout() -> void:
+	if Globals.selected_level and not Globals.selected_level.spawn_fodder:
+		return
 	if fodder_stopped or fodder_scene == null:
 		return
 		
@@ -155,11 +161,13 @@ func queue_worm_spawn() -> void:
 	worm_queues.append({
 		"remaining_dots": total_dots,
 		"total_dots": total_dots,
+		"spawned_count": 0,
 		"last_node": null,
 		"start_pos": start_pos,
 		"spawn_dir": spawn_dir,
 		"spacing": 16.0 * worm_scale,
-		"scale": worm_scale
+		"scale": worm_scale,
+		"infinite": Globals.selected_level.infinite_worm if Globals.selected_level else false
 	})
 
 func spawn_bouncy() -> void:
