@@ -1,3 +1,4 @@
+- **Context**: This is a 2D top-down game survivor-style. It's inspired by Vampire Survivors, Super Hexagon and Crypt of the Necrodancer. The player has to survive waves of enemies while collecting items to improve their stats.x
 - **Syntax**: Always use Godot 4.x / GDScript 2.0 syntax (e.g., @export, @onready).
 - **Performance**: Prioritize performance by using Static Typing (var x: int = 0) and Object Pooling for high-frequency nodes like bullets.
 - **Communication**: Follow the "Signal Up, Call Down" pattern for all node interactions.

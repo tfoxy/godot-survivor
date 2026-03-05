@@ -39,6 +39,8 @@ var last_worm_count_increase: float = 0.0
 
 # Queue for incremental spawning to avoid frame drops
 var worm_queues: Array = []
+var _worm_pool: Array[Node] = []
+var _pool_fill_accumulator: float = 0.0
 
 func _ready() -> void:
 	var config = Globals.selected_level
@@ -111,15 +113,54 @@ func _process(delta: float) -> void:
 		next_mortar_time += mortar_current_interval
 		mortar_current_interval = max(5.0, mortar_current_interval * 0.9)
 	
+	# Pool refilling logic
+	_refill_worm_pool(delta)
+	
 	# Handle incremental spawning (one dot per frame for each active queue)
 	_process_spawn_queues()
+
+func _exit_tree() -> void:
+	for worm in _worm_pool:
+		if is_instance_valid(worm):
+			worm.free()
+	_worm_pool.clear()
+
+func _refill_worm_pool(delta: float) -> void:
+	if worm_dot_scene == null:
+		return
+		
+	var target_pool_size = int(worms_per_spawn * dots_per_worm)
+	if _worm_pool.size() < target_pool_size:
+		var time_left = next_worm_time - total_time
+		if time_left > 0:
+			var dots_to_add = target_pool_size - _worm_pool.size()
+			var fill_rate = dots_to_add / time_left # dots per second
+			
+			_pool_fill_accumulator += fill_rate * delta
+			var to_instantiate = int(_pool_fill_accumulator)
+			_pool_fill_accumulator -= to_instantiate
+			
+			# Cap to avoid performance spikes if filling is behind
+			to_instantiate = min(to_instantiate, 10)
+			
+			for i in range(to_instantiate):
+				if _worm_pool.size() < target_pool_size:
+					var worm = worm_dot_scene.instantiate()
+					_worm_pool.append(worm)
+				else:
+					break
 
 func _process_spawn_queues() -> void:
 	var finished_indices: Array = []
 	for i in range(worm_queues.size()):
 		var q = worm_queues[i]
 		
-		var worm = worm_dot_scene.instantiate()
+		var worm: Node2D
+		if not _worm_pool.is_empty():
+			worm = _worm_pool.pop_back()
+		else:
+			worm = worm_dot_scene.instantiate()
+			
 		var dot_index = q.spawned_count
 		worm.position = q.start_pos - q.spawn_dir * (dot_index * q.spacing)
 		if worm.has_method("set_scale_factor"):
